@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kiokogit — Senior Backend & AI Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00ff88;
+    --green-dim: #00cc6a;
+    --green-faint: rgba(0,255,136,0.07);
+    --amber: #ffb700;
+    --red: #ff4d6a;
+    --blue: #4dd9ff;
+    --purple: #bd93f9;
+    --bg: #0a0c0e;
+    --bg2: #0f1214;
+    --bg3: #141a1e;
+    --border: rgba(0,255,136,0.15);
+    --text: #c8d6e5;
+    --text-dim: #5a7080;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-display: 'Syne', sans-serif;
+    --glow: 0 0 20px rgba(0,255,136,0.3);
+    --glow-sm: 0 0 8px rgba(0,255,136,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── MATRIX CANVAS ── */
+  #matrix {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.04;
+  }
+
+  /* ── SCANLINES OVERLAY ── */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── TOP NAV BAR ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 44px;
+    background: rgba(10,12,14,0.92);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    font-size: 12px;
+  }
+  nav .logo {
+    color: var(--green);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-shadow: var(--glow-sm);
+  }
+  nav .logo span { color: var(--text-dim); }
+  nav ul {
+    display: flex; gap: 2rem; list-style: none;
+  }
+  nav ul a {
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: color .2s;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  nav ul a:hover { color: var(--green); text-shadow: var(--glow-sm); }
+  nav .status {
+    display: flex; align-items: center; gap: .5rem;
+    color: var(--text-dim); font-size: 11px;
+  }
+  nav .status .dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* ── WRAPPER ── */
+  .page { position: relative; z-index: 2; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 6rem 4rem 4rem;
+    position: relative;
+  }
+
+  .hero-inner {
+    max-width: 900px;
+  }
+
+  .prompt-line {
+    color: var(--green-dim);
+    font-size: 12px;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp .5s ease forwards .3s;
+  }
+  .prompt-line .user { color: var(--amber); }
+  .prompt-line .at { color: var(--text-dim); }
+  .prompt-line .host { color: var(--blue); }
+
+  .hero-name {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    color: #fff;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .5s;
+  }
+  .hero-name .accent { color: var(--green); text-shadow: var(--glow); }
+
+  .hero-title {
+    margin-top: 1rem;
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--text-dim);
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .7s;
+  }
+  .hero-title .tag {
+    display: inline-block;
+    background: var(--green-faint);
+    border: 1px solid var(--border);
+    color: var(--green);
+    padding: .1rem .5rem;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-right: .4rem;
+    letter-spacing: .04em;
+  }
+
+  .hero-desc {
+    margin-top: 1.5rem;
+    max-width: 580px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    font-size: 13px;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .9s;
+  }
+
+  .hero-cta {
+    margin-top: 2.5rem;
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.1s;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center; gap: .5rem;
+    padding: .6rem 1.4rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    transition: all .2s;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--green);
+    color: #000;
+    border: none;
+  }
+  .btn-primary:hover { background: #fff; box-shadow: 0 0 20px rgba(0,255,136,0.5); }
+  .btn-outline {
+    background: transparent;
+    color: var(--green);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--green); box-shadow: var(--glow-sm); }
+
+  /* big decorative terminal in hero */
+  .hero-terminal {
+    position: absolute;
+    right: 4rem; top: 50%;
+    transform: translateY(-50%);
+    width: 420px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), var(--glow);
+    opacity: 0;
+    animation: fadeLeft .8s ease forwards 1.3s;
+    font-size: 12px;
+  }
+  .terminal-bar {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .7rem 1rem;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal-bar .dot { width:11px;height:11px;border-radius:50%; }
+  .terminal-bar .dot.r { background:#ff5f57; }
+  .terminal-bar .dot.y { background:#febc2e; }
+  .terminal-bar .dot.g { background:#28c840; }
+  .terminal-bar .title {
+    flex:1; text-align:center;
+    color: var(--text-dim); font-size: 11px;
+  }
+  .terminal-body { padding: 1.2rem 1.4rem; min-height: 280px; }
+  .tl { color: var(--text-dim); margin-bottom: .15rem; }
+  .tl .prompt { color: var(--green); }
+  .tl .cmd { color: #fff; }
+  .tl .out { color: var(--text-dim); padding-left: 1rem; display: block; }
+  .tl .key { color: var(--amber); }
+  .tl .val { color: var(--blue); }
+  .tl .str { color: var(--purple); }
+  .tl .num { color: var(--red); }
+  .tl .bool { color: var(--green); }
+  .blink {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--green);
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(24px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes fadeLeft {
+    from { opacity:0; transform: translate(30px, -50%); }
+    to   { opacity:1; transform: translate(0, -50%); }
+  }
+
+  /* ── SECTION LAYOUT ── */
+  section { padding: 6rem 4rem; position: relative; }
+  section:nth-child(even) { background: rgba(255,255,255,0.015); }
+
+  .section-header {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 3rem;
+  }
+  .section-num {
+    color: var(--green);
+    font-size: 11px;
+    letter-spacing: .1em;
+    opacity: .6;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem,3vw,2rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.02em;
+  }
+  .section-line {
+    flex:1; height:1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* ── SKILLS GRID ── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .skill-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.2rem 1.4rem;
+    transition: all .25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top:0; left:0; right:0; height:2px;
+    background: var(--green);
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  .skill-card:hover { border-color: var(--green); transform: translateY(-3px); box-shadow: var(--glow); }
+  .skill-card:hover::before { opacity: 1; }
+  .skill-card-icon { font-size: 1.4rem; margin-bottom: .5rem; }
+  .skill-card-name {
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: .4rem;
+  }
+  .skill-card-tags {
+    display: flex; flex-wrap: wrap; gap: .3rem;
+  }
+  .stag {
+    font-size: 10px;
+    padding: .1rem .45rem;
+    border-radius: 3px;
+    background: var(--green-faint);
+    border: 1px solid var(--border);
+    color: var(--green);
+  }
+  .stag.amber { background: rgba(255,183,0,.08); border-color: rgba(255,183,0,.2); color: var(--amber); }
+  .stag.blue  { background: rgba(77,217,255,.08); border-color: rgba(77,217,255,.2); color: var(--blue); }
+  .stag.purple{ background: rgba(189,147,249,.08); border-color: rgba(189,147,249,.2); color: var(--purple); }
+  .stag.red   { background: rgba(255,77,106,.08);  border-color: rgba(255,77,106,.2);  color: var(--red); }
+
+  /* ── EXPERIENCE TIMELINE ── */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before {
+    content:''; position:absolute;
+    left:0; top:0; bottom:0; width:1px;
+    background: linear-gradient(180deg, var(--green) 0%, transparent 100%);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+    padding-left: 1.5rem;
+  }
+  .timeline-item::before {
+    content:'';
+    position: absolute;
+    left: -2rem; top: .4rem;
+    width: 9px; height: 9px;
+    background: var(--bg);
+    border: 2px solid var(--green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--green);
+  }
+  .tj-head {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+    margin-bottom: .5rem;
+  }
+  .tj-role { color: #fff; font-weight: 700; font-size: 14px; }
+  .tj-company { color: var(--green); }
+  .tj-period {
+    font-size: 11px; color: var(--text-dim);
+    background: var(--green-faint);
+    border: 1px solid var(--border);
+    padding: .15rem .5rem;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .tj-desc { color: var(--text-dim); font-size: 12.5px; line-height: 1.75; }
+
+  /* ── PROJECTS ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.2rem;
+  }
+  .project-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all .25s;
+    display: flex; flex-direction: column; gap: .6rem;
+  }
+  .project-card:hover {
+    border-color: rgba(0,255,136,.4);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), var(--glow-sm);
+  }
+  .project-top { display: flex; align-items: center; justify-content: space-between; }
+  .proj-icon { font-size: 1.2rem; }
+  .proj-links a {
+    color: var(--text-dim); font-size: 11px; text-decoration: none;
+    border: 1px solid var(--border);
+    padding: .15rem .5rem; border-radius: 3px;
+    transition: all .2s;
+  }
+  .proj-links a:hover { color: var(--green); border-color: var(--green); }
+  .proj-name { color: #fff; font-weight: 700; font-size: 14px; }
+  .proj-desc { color: var(--text-dim); font-size: 12px; line-height: 1.7; flex: 1; }
+  .proj-lang {
+    display: inline-block;
+    font-size: 10px;
+    color: var(--amber);
+    padding: .1rem .4rem;
+    background: rgba(255,183,0,.08);
+    border-radius: 3px;
+    border: 1px solid rgba(255,183,0,.2);
+  }
+
+  /* ── INTERACTIVE TERMINAL ── */
+  #terminal-section { padding: 4rem; }
+  .terminal-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.5), var(--glow);
+  }
+  .terminal-header {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .8rem 1rem;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+  .terminal-header .dot { width:12px;height:12px;border-radius:50%; }
+  .terminal-header .dot.r { background:#ff5f57; }
+  .terminal-header .dot.y { background:#febc2e; }
+  .terminal-header .dot.g { background:#28c840; }
+  .terminal-header .label {
+    flex:1; text-align:center;
+    color: var(--text-dim); font-size: 11px;
+  }
+  #term-output {
+    padding: 1.2rem 1.4rem;
+    min-height: 300px;
+    max-height: 420px;
+    overflow-y: auto;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+  #term-output::-webkit-scrollbar { width: 4px; }
+  #term-output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .term-line { margin-bottom: .1rem; }
+  .term-prompt-s { color: var(--green); }
+  .term-cmd-s { color: #fff; }
+  .term-out-s { color: var(--text-dim); }
+  .term-err-s { color: var(--red); }
+  .term-suc-s { color: var(--green); }
+  .term-info-s { color: var(--blue); }
+  .term-input-line {
+    display: flex; align-items: center;
+    padding: .6rem 1.4rem;
+    border-top: 1px solid var(--border);
+    gap: .5rem;
+  }
+  .term-prompt-l { color: var(--green); white-space: nowrap; font-size: 12.5px; }
+  #term-input {
+    flex:1;
+    background: transparent;
+    border: none; outline: none;
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    caret-color: var(--green);
+  }
+  .term-hint {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 11px;
+    padding-bottom: .8rem;
+    letter-spacing: .04em;
+  }
+
+  /* ── CONTACT ── */
+  #contact .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 700px;
+  }
+  .contact-item {
+    display: flex; align-items: center; gap: .8rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    text-decoration: none;
+    color: var(--text);
+    transition: all .2s;
+  }
+  .contact-item:hover {
+    border-color: var(--green);
+    color: var(--green);
+    box-shadow: var(--glow-sm);
+  }
+  .ci-icon { font-size: 1.2rem; }
+  .ci-label { font-size: 10px; color: var(--text-dim); display: block; }
+  .ci-val { font-size: 12px; font-weight: 600; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  footer a { color: var(--green); text-decoration: none; }
+
+  /* ── FLOATING SIDE ── */
+  .side-social {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+    z-index: 50;
+  }
+  .side-social a {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all .2s;
+    background: var(--bg2);
+  }
+  .side-social a:hover {
+    color: var(--green);
+    border-color: var(--green);
+    box-shadow: var(--glow-sm);
+  }
+  .side-line {
+    width: 1px; height: 60px;
+    background: linear-gradient(180deg, transparent, var(--border));
+    margin: 0 auto;
+  }
+
+  /* ── UTILITY ── */
+  .max-w { max-width: 1100px; margin: 0 auto; }
+
+  @media (max-width: 900px) {
+    #hero { flex-direction: column; padding: 5rem 2rem 2rem; }
+    .hero-terminal { position: static; transform: none; width: 100%; margin-top: 2rem;
+      animation: fadeUp .8s ease forwards 1.3s; }
+    @keyframes fadeLeft { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+    section { padding: 4rem 2rem; }
+    #terminal-section { padding: 2rem; }
+    #contact .contact-grid { grid-template-columns: 1fr; }
+    footer { padding: 1.5rem 2rem; }
+    .side-social { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="logo"><span>~/</span>kiokogit</div>
+  <ul>
+    <li><a href="#about">about</a></li>
+    <li><a href="#skills">skills</a></li>
+    <li><a href="#experience">exp</a></li>
+    <li><a href="#projects">projects</a></li>
+    <li><a href="#terminal-section">terminal</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+  <div class="status">
+    <div class="dot"></div>
+    available for work
+  </div>
+</nav>
+
+<!-- SIDE SOCIAL -->
+<div class="side-social">
+  <a href="https://github.com/kiokogit" target="_blank" title="GitHub">⌥</a>
+  <a href="https://www.linkedin.com/in/kiokogit/" target="_blank" title="LinkedIn">in</a>
+  <a href="https://twitter.com/live_bette_r" target="_blank" title="X">𝕏</a>
+  <a href="mailto:kiokovincent12@gmail.com" title="Email">@</a>
+  <div class="side-line"></div>
+</div>
+
+<div class="page">
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-inner">
+    <div class="prompt-line">
+      <span class="user">vincent</span><span class="at">@</span><span class="host">kiokogit</span><span style="color:var(--text-dim)">:~$ </span><span style="color:#fff">whoami</span>
+    </div>
+    <h1 class="hero-name">Vincent<br><span class="accent">Kioko.</span></h1>
+    <div class="hero-title">
+      <span class="tag">backend</span>
+      <span class="tag">AI/ML</span>
+      <span class="tag">DevOps</span>
+      Senior Software Engineer — Python, Django, AI Systems
+    </div>
+    <p class="hero-desc">
+      Building reliable, scalable backend systems and AI-powered solutions from Nairobi, Kenya.<br>
+      Specialising in Python ecosystems, distributed architectures, and intelligent automation.<br>
+      Currently at <span style="color:var(--amber)">Konza Silicone Ltd</span>.
+    </p>
+    <div class="hero-cta">
+      <a href="#terminal-section" class="btn btn-primary">▶ run ./terminal</a>
+      <a href="#projects" class="btn btn-outline">// view projects</a>
+      <a href="#contact" class="btn btn-outline">$ ping me</a>
+    </div>
+  </div>
+
+  <!-- HERO TERMINAL -->
+  <div class="hero-terminal">
+    <div class="terminal-bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="title">vincent@kiokogit: ~</div>
+    </div>
+    <div class="terminal-body">
+      <div class="tl"><span class="prompt">❯ </span><span class="cmd">python3 profile.py</span></div>
+      <div class="tl"><br></div>
+      <div class="tl"><span class="out"><span class="key">{</span></span></div>
+      <div class="tl"><span class="out">  <span class="key">"name"</span>: <span class="str">"Vincent Kioko"</span>,</span></div>
+      <div class="tl"><span class="out">  <span class="key">"role"</span>: <span class="str">"Senior Backend + AI Engineer"</span>,</span></div>
+      <div class="tl"><span class="out">  <span class="key">"location"</span>: <span class="str">"Nairobi, Kenya 🌍"</span>,</span></div>
+      <div class="tl"><span class="out">  <span class="key">"primary_lang"</span>: <span class="str">"Python"</span>,</span></div>
+      <div class="tl"><span class="out">  <span class="key">"frameworks"</span>: [<span class="str">"Django"</span>, <span class="str">"FastAPI"</span>],</span></div>
+      <div class="tl"><span class="out">  <span class="key">"ai_stack"</span>: [<span class="str">"LangChain"</span>, <span class="str">"OpenAI"</span>],</span></div>
+      <div class="tl"><span class="out">  <span class="key">"devops"</span>: [<span class="str">"Docker"</span>, <span class="str">"K8s"</span>, <span class="str">"CI/CD"</span>],</span></div>
+      <div class="tl"><span class="out">  <span class="key">"open_to"</span>: <span class="bool">True</span>,</span></div>
+      <div class="tl"><span class="out">  <span class="key">"repos"</span>: <span class="num">47</span></span></div>
+      <div class="tl"><span class="out"><span class="key">}</span></span></div>
+      <div class="tl"><br></div>
+      <div class="tl"><span class="prompt">❯ </span><span class="blink"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ABOUT ── -->
+<section id="about">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-num">// 01</span>
+      <h2 class="section-title">About</h2>
+      <div class="section-line"></div>
+    </div>
+    <div style="max-width:680px; color:var(--text-dim); line-height:1.9; font-size:13px;">
+      <p>I'm a <span style="color:#fff;font-weight:600">Backend Software Engineer</span> with a strong focus on building reliable, secure, and scalable backend systems. I specialise in <span style="color:var(--green)">Python</span>, <span style="color:var(--green)">Django</span>, and <span style="color:var(--green)">DevOps practices</span> while leveraging Linux to create efficient and robust solutions.</p>
+      <br>
+      <p>My passion lies at the intersection of backend engineering and <span style="color:var(--amber)">Artificial Intelligence</span> — designing intelligent APIs, data pipelines, and automation systems that solve real-world problems. I believe great software is built at the intersection of deep technical craft and purposeful problem-solving.</p>
+      <br>
+      <p>Beyond code, I value <span style="color:var(--blue)">integrity</span>, <span style="color:var(--blue)">adaptability</span>, <span style="color:var(--blue)">innovation</span>, <span style="color:var(--blue)">teamwork</span>, and continuous learning — principles that guide every project I work on.</p>
+    </div>
+
+    <!-- STAT ROW -->
+    <div style="display:flex;gap:2rem;margin-top:2.5rem;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--green);text-shadow:var(--glow)">3+</div>
+        <div style="font-size:11px;color:var(--text-dim);letter-spacing:.06em">YRS EXPERIENCE</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--amber)">47</div>
+        <div style="font-size:11px;color:var(--text-dim);letter-spacing:.06em">REPOSITORIES</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--blue)">5+</div>
+        <div style="font-size:11px;color:var(--text-dim);letter-spacing:.06em">CLIENTS SERVED</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--purple)">∞</div>
+        <div style="font-size:11px;color:var(--text-dim);letter-spacing:.06em">COFFEES CONSUMED</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SKILLS ── -->
+<section id="skills">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-num">// 02</span>
+      <h2 class="section-title">Tech Stack</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-card-icon">🐍</div>
+        <div class="skill-card-name">Python Ecosystem</div>
+        <div class="skill-card-tags">
+          <span class="stag">Python 3.x</span>
+          <span class="stag">Django</span>
+          <span class="stag">FastAPI</span>
+          <span class="stag">Celery</span>
+          <span class="stag">Pydantic</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">🤖</div>
+        <div class="skill-card-name">AI / Machine Learning</div>
+        <div class="skill-card-tags">
+          <span class="stag amber">LangChain</span>
+          <span class="stag amber">OpenAI API</span>
+          <span class="stag amber">RAG</span>
+          <span class="stag amber">Vector DBs</span>
+          <span class="stag amber">Transformers</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">🐳</div>
+        <div class="skill-card-name">DevOps & Infrastructure</div>
+        <div class="skill-card-tags">
+          <span class="stag blue">Docker</span>
+          <span class="stag blue">Kubernetes</span>
+          <span class="stag blue">Jenkins</span>
+          <span class="stag blue">Ansible</span>
+          <span class="stag blue">Linux</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">🗄️</div>
+        <div class="skill-card-name">Databases</div>
+        <div class="skill-card-tags">
+          <span class="stag purple">PostgreSQL</span>
+          <span class="stag purple">MongoDB</span>
+          <span class="stag purple">Redis</span>
+          <span class="stag purple">SQLite</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">☁️</div>
+        <div class="skill-card-name">Cloud Platforms</div>
+        <div class="skill-card-tags">
+          <span class="stag red">AWS</span>
+          <span class="stag red">Google Cloud</span>
+          <span class="stag red">CI/CD Pipelines</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">⚙️</div>
+        <div class="skill-card-name">APIs & Architecture</div>
+        <div class="skill-card-tags">
+          <span class="stag">REST APIs</span>
+          <span class="stag">GraphQL</span>
+          <span class="stag">WebSockets</span>
+          <span class="stag">Microservices</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">🌐</div>
+        <div class="skill-card-name">Frontend (Secondary)</div>
+        <div class="skill-card-tags">
+          <span class="stag amber">React JS</span>
+          <span class="stag amber">JavaScript</span>
+          <span class="stag amber">HTML/CSS</span>
+          <span class="stag amber">Node.js</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-card-icon">🔧</div>
+        <div class="skill-card-name">Tools & Version Control</div>
+        <div class="skill-card-tags">
+          <span class="stag blue">Git</span>
+          <span class="stag blue">GitHub</span>
+          <span class="stag blue">VSCode</span>
+          <span class="stag blue">Postman</span>
+          <span class="stag blue">Vim</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── EXPERIENCE ── -->
+<section id="experience">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-num">// 03</span>
+      <h2 class="section-title">Experience</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="tj-head">
+          <div>
+            <div class="tj-role">Senior Software Engineer</div>
+            <div class="tj-company">Konza Silicone Ltd — Nairobi, Kenya</div>
+          </div>
+          <div class="tj-period">Sept 2022 → Present</div>
+        </div>
+        <p class="tj-desc">Developing and maintaining production web applications for clients across multiple domains. Architecting scalable backend systems, building RESTful APIs, and integrating AI-powered features. Collaborating cross-functionally with design and QA teams to deliver high-quality, performant, and user-centric software. Led several full-stack initiatives from architecture to deployment.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tj-head">
+          <div>
+            <div class="tj-role">Software Engineer (Contract, Remote)</div>
+            <div class="tj-company">Mayan EDMS</div>
+          </div>
+          <div class="tj-period">Jun 2023 → Sept 2023</div>
+        </div>
+        <p class="tj-desc">Contributed to an open-source enterprise document management system built on Django. Developed new features, fixed critical bugs, and improved system performance. Mentored junior developers and improved code quality across the codebase. Contributed patches that were merged into the upstream repository.</p>
+      </div>
+      <div class="timeline-item">
+        <div class="tj-head">
+          <div>
+            <div class="tj-role">Full Stack Developer (Part-time, Remote)</div>
+            <div class="tj-company">DGA Tours and Travel Ltd — Naivasha, Kenya</div>
+          </div>
+          <div class="tj-period">May 2022 → May 2023</div>
+        </div>
+        <p class="tj-desc">Designed and developed a complete tours and travel booking platform from scratch as a solo full-stack developer. Built the booking engine, travel guide system, and client-facing website. Handled database design, backend logic, and frontend implementation end-to-end.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROJECTS ── -->
+<section id="projects">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-num">// 04</span>
+      <h2 class="section-title">Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-top">
+          <div class="proj-icon">🛒</div>
+          <div class="proj-links">
+            <a href="https://github.com/kiokogit/ecommerce" target="_blank">↗ github</a>
+          </div>
+        </div>
+        <div class="proj-name">E-Commerce API</div>
+        <div class="proj-desc">A simplified, fully-featured e-commerce REST API. Handles product management, user authentication, order processing, and payment integrations using Django REST Framework.</div>
+        <div><span class="proj-lang">Python · Django</span></div>
+      </div>
+      <div class="project-card">
+        <div class="project-top">
+          <div class="proj-icon">✈️</div>
+          <div class="proj-links">
+            <a href="https://github.com/kiokogit" target="_blank">↗ github</a>
+          </div>
+        </div>
+        <div class="proj-name">Tours & Travel Platform</div>
+        <div class="proj-desc">Full-stack booking and travel guide system for DGA Tours. Features trip discovery, booking engine, admin dashboard, and real-time availability updates.</div>
+        <div><span class="proj-lang">Python · Django · React</span></div>
+      </div>
+      <div class="project-card">
+        <div class="project-top">
+          <div class="proj-icon">📄</div>
+          <div class="proj-links">
+            <a href="https://github.com/mayan-edms/mayan-edms" target="_blank">↗ upstream</a>
+          </div>
+        </div>
+        <div class="proj-name">Mayan EDMS Contributions</div>
+        <div class="proj-desc">Open-source enterprise document management system. Contributed backend features, performance improvements, and bug fixes to the main Django-powered codebase.</div>
+        <div><span class="proj-lang">Python · Django · Open Source</span></div>
+      </div>
+      <div class="project-card">
+        <div class="project-top">
+          <div class="proj-icon">🤖</div>
+          <div class="proj-links">
+            <a href="https://github.com/kiokogit" target="_blank">↗ github</a>
+          </div>
+        </div>
+        <div class="proj-name">AI-Powered Backend Services</div>
+        <div class="proj-desc">Intelligent automation pipelines integrating LLMs with Django backends. Features RAG implementations, document processing agents, and API-driven AI workflows.</div>
+        <div><span class="proj-lang">Python · LangChain · FastAPI</span></div>
+      </div>
+      <div class="project-card">
+        <div class="project-top">
+          <div class="proj-icon">🐳</div>
+          <div class="proj-links">
+            <a href="https://github.com/kiokogit" target="_blank">↗ github</a>
+          </div>
+        </div>
+        <div class="proj-name">DevOps Automation Scripts</div>
+        <div class="proj-desc">A collection of CI/CD pipeline configurations, Docker Compose setups, and Ansible playbooks for automating server provisioning and application deployment.</div>
+        <div><span class="proj-lang">Docker · Ansible · Bash</span></div>
+      </div>
+      <div class="project-card">
+        <div class="project-top">
+          <div class="proj-icon">📊</div>
+          <div class="proj-links">
+            <a href="https://github.com/kiokogit" target="_blank">↗ github</a>
+          </div>
+        </div>
+        <div class="proj-name">Data Pipeline & Analytics</div>
+        <div class="proj-desc">Scalable ETL pipelines built with Python for processing large datasets. Integrates with PostgreSQL and MongoDB for storage and visualisation dashboards.</div>
+        <div><span class="proj-lang">Python · PostgreSQL · MongoDB</span></div>
+      </div>
+    </div>
+    <div style="margin-top:1.5rem;">
+      <a href="https://github.com/kiokogit?tab=repositories" target="_blank" class="btn btn-outline">
+        → view all 47 repositories on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── INTERACTIVE TERMINAL ── -->
+<section id="terminal-section">
+  <div class="max-w" style="max-width:800px;">
+    <div class="section-header">
+      <span class="section-num">// 05</span>
+      <h2 class="section-title">Interactive Terminal</h2>
+      <div class="section-line"></div>
+    </div>
+    <p style="color:var(--text-dim);font-size:12px;margin-bottom:1.5rem;">
+      Type a command and hit Enter. Try: <span style="color:var(--green)">help</span>, <span style="color:var(--green)">skills</span>, <span style="color:var(--green)">contact</span>, <span style="color:var(--green)">experience</span>, <span style="color:var(--green)">projects</span>
+    </p>
+    <div class="terminal-wrapper">
+      <div class="terminal-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="label">bash — vincent@kiokogit: ~/portfolio</div>
+      </div>
+      <div id="term-output">
+        <div class="term-line"><span class="term-suc-s">Welcome to kiokogit's portfolio terminal v1.0.0</span></div>
+        <div class="term-line"><span class="term-info-s">Type 'help' to see available commands.</span></div>
+        <div class="term-line">&nbsp;</div>
+      </div>
+      <div class="term-input-line">
+        <span class="term-prompt-l">vincent@kiokogit:~$ </span>
+        <input id="term-input" type="text" autocomplete="off" spellcheck="false" placeholder="type a command...">
+      </div>
+      <div class="term-hint">↑↓ command history &nbsp;·&nbsp; tab to autocomplete</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section id="contact">
+  <div class="max-w">
+    <div class="section-header">
+      <span class="section-num">// 06</span>
+      <h2 class="section-title">Contact</h2>
+      <div class="section-line"></div>
+    </div>
+    <p style="color:var(--text-dim);font-size:13px;max-width:480px;margin-bottom:2rem;line-height:1.8;">
+      Have an interesting project, a collaboration idea, or just want to talk tech? I'm always open to connecting.
+    </p>
+    <div class="contact-grid">
+      <a class="contact-item" href="mailto:kiokovincent12@gmail.com">
+        <span class="ci-icon">📧</span>
+        <span><span class="ci-label">email</span><span class="ci-val">kiokovincent12@gmail.com</span></span>
+      </a>
+      <a class="contact-item" href="tel:+254703618918">
+        <span class="ci-icon">📞</span>
+        <span><span class="ci-label">phone / whatsapp</span><span class="ci-val">+254 703 618 918</span></span>
+      </a>
+      <a class="contact-item" href="https://github.com/kiokogit" target="_blank">
+        <span class="ci-icon">⌥</span>
+        <span><span class="ci-label">github</span><span class="ci-val">github.com/kiokogit</span></span>
+      </a>
+      <a class="contact-item" href="https://www.linkedin.com/in/kiokogit/" target="_blank">
+        <span class="ci-icon">in</span>
+        <span><span class="ci-label">linkedin</span><span class="ci-val">linkedin.com/in/kiokogit</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <span style="color:var(--green)">vincent@kiokogit</span>
+    <span style="margin:0 .5rem;color:var(--text-dim)">·</span>
+    Built with ❤️ &amp; ☕ in Nairobi, Kenya
+  </div>
+  <div>
+    <a href="https://github.com/kiokogit">GitHub</a>
+    <span style="margin:0 .8rem;color:var(--text-dim)">·</span>
+    <a href="https://www.linkedin.com/in/kiokogit/">LinkedIn</a>
+    <span style="margin:0 .8rem;color:var(--text-dim)">·</span>
+    <span style="color:var(--text-dim)">© 2025 Vincent Kioko</span>
+  </div>
+</footer>
+
+</div><!-- .page -->
+
+<script>
+/* ── MATRIX RAIN ── */
+(function(){
+  const c = document.getElementById('matrix');
+  const ctx = c.getContext('2d');
+  function resize(){ c.width=window.innerWidth; c.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  const cols = Math.floor(window.innerWidth / 16);
+  const drops = Array(cols).fill(1);
+  setInterval(()=>{
+    ctx.fillStyle='rgba(0,0,0,0.05)';
+    ctx.fillRect(0,0,c.width,c.height);
+    ctx.fillStyle='#00ff88';
+    ctx.font='14px JetBrains Mono, monospace';
+    drops.forEach((y,i)=>{
+      const ch = chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillText(ch, i*16, y*16);
+      if(y*16 > c.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    });
+  }, 60);
+})();
+
+/* ── INTERACTIVE TERMINAL ── */
+(function(){
+  const output = document.getElementById('term-output');
+  const input  = document.getElementById('term-input');
+  const history = [];
+  let hIdx = -1;
+
+  const commands = {
+    help: ()=>[
+      {t:'info', v:'Available commands:'},
+      {t:'out',  v:'  help        — show this help'},
+      {t:'out',  v:'  about       — learn about Vincent'},
+      {t:'out',  v:'  skills      — print tech stack'},
+      {t:'out',  v:'  experience  — work history'},
+      {t:'out',  v:'  projects    — notable projects'},
+      {t:'out',  v:'  contact     — get in touch'},
+      {t:'out',  v:'  social      — social links'},
+      {t:'out',  v:'  clear       — clear the terminal'},
+      {t:'out',  v:'  python      — run a quick Python snippet'},
+      {t:'out',  v:'  quote       — a dev quote'},
+    ],
+    about: ()=>[
+      {t:'suc',  v:'> Vincent Kioko — Senior Backend & AI Engineer'},
+      {t:'out',  v:'  Location  : Nairobi, Kenya 🌍'},
+      {t:'out',  v:'  Current   : Konza Silicone Ltd'},
+      {t:'out',  v:'  Focus     : Python · Django · AI · DevOps'},
+      {t:'out',  v:'  Repos     : 47 public repositories'},
+      {t:'out',  v:'  Principles: Integrity · Adaptability · Innovation'},
+    ],
+    skills: ()=>[
+      {t:'suc',  v:'> Tech Stack'},
+      {t:'out',  v:'  [Python]    ██████████ Expert'},
+      {t:'out',  v:'  [Django]    ██████████ Expert'},
+      {t:'out',  v:'  [FastAPI]   █████████░ Proficient'},
+      {t:'out',  v:'  [Docker]    █████████░ Proficient'},
+      {t:'out',  v:'  [K8s]       ████████░░ Proficient'},
+      {t:'out',  v:'  [PostgreSQL]████████░░ Proficient'},
+      {t:'out',  v:'  [MongoDB]   ████████░░ Proficient'},
+      {t:'out',  v:'  [AWS / GCP] ███████░░░ Intermediate'},
+      {t:'out',  v:'  [React]     ██████░░░░ Proficient'},
+      {t:'out',  v:'  [AI/LLMs]   █████████░ Growing Fast'},
+    ],
+    experience: ()=>[
+      {t:'suc',  v:'> Work Experience'},
+      {t:'out',  v:''},
+      {t:'info', v:'  ● Konza Silicone Ltd (Sept 2022 → Present)'},
+      {t:'out',  v:'    Senior Software Engineer · Full-time · Nairobi'},
+      {t:'out',  v:''},
+      {t:'info', v:'  ● Mayan EDMS (Jun 2023 → Sept 2023)'},
+      {t:'out',  v:'    Software Engineer · Contract · Remote'},
+      {t:'out',  v:''},
+      {t:'info', v:'  ● DGA Tours and Travel Ltd (May 2022 → May 2023)'},
+      {t:'out',  v:'    Full Stack Developer · Part-time · Remote'},
+    ],
+    projects: ()=>[
+      {t:'suc',  v:'> Notable Projects'},
+      {t:'out',  v:''},
+      {t:'out',  v:'  📦 ecommerce-api       → Django REST · Python'},
+      {t:'out',  v:'  ✈️  tours-platform       → Django · React'},
+      {t:'out',  v:'  📄 mayan-edms-contrib   → Open Source · Python'},
+      {t:'out',  v:'  🤖 ai-backend-services  → LangChain · FastAPI'},
+      {t:'out',  v:'  🐳 devops-scripts       → Docker · Ansible'},
+      {t:'out',  v:''},
+      {t:'info', v:'  → github.com/kiokogit (47 repos)'},
+    ],
+    contact: ()=>[
+      {t:'suc',  v:'> Contact Vincent'},
+      {t:'out',  v:'  📧 kiokovincent12@gmail.com'},
+      {t:'out',  v:'  📞 +254 703 618 918'},
+      {t:'out',  v:'  💬 wa.me/+254703618918'},
+      {t:'out',  v:'  📍 Nairobi, Kenya'},
+    ],
+    social: ()=>[
+      {t:'suc',  v:'> Social Links'},
+      {t:'out',  v:'  GitHub    → github.com/kiokogit'},
+      {t:'out',  v:'  LinkedIn  → linkedin.com/in/kiokogit'},
+      {t:'out',  v:'  Twitter   → @live_bette_r'},
+    ],
+    python: ()=>[
+      {t:'info', v:'$ python3'},
+      {t:'out',  v:'Python 3.11.0 (kiokogit build)'},
+      {t:'out',  v:'>>> import vincent'},
+      {t:'out',  v:'>>> vincent.skills'},
+      {t:'suc',  v:"['Python','Django','FastAPI','Docker','K8s','PostgreSQL','AI']"},
+      {t:'out',  v:'>>> vincent.is_available()'},
+      {t:'suc',  v:'True'},
+      {t:'out',  v:'>>> exit()'},
+    ],
+    quote: ()=>[
+      {t:'out',  v:''},
+      {t:'suc',  v:'"First, solve the problem. Then, write the code."'},
+      {t:'info', v:'   — John Johnson'},
+      {t:'out',  v:''},
+    ],
+    clear: ()=> { output.innerHTML=''; return []; },
+    ls: ()=>[
+      {t:'out', v:'about.py  skills.json  experience.log  projects/  contact.txt'},
+    ],
+    pwd: ()=>[{t:'out', v:'/home/vincent/portfolio'}],
+    whoami: ()=>[{t:'suc', v:'vincent — Senior Backend & AI Engineer'}],
+    date: ()=>[{t:'out', v: new Date().toString()}],
+    uname: ()=>[{t:'out', v:'Linux kiokogit-dev 6.5.0 #1 SMP x86_64 GNU/Linux'}],
+  };
+
+  function print(lines){
+    lines.forEach(l=>{
+      const d = document.createElement('div');
+      d.className='term-line';
+      const s = document.createElement('span');
+      s.className = l.t==='suc'?'term-suc-s':l.t==='err'?'term-err-s':l.t==='info'?'term-info-s':'term-out-s';
+      s.textContent = l.v;
+      d.appendChild(s);
+      output.appendChild(d);
+    });
+    output.scrollTop = output.scrollHeight;
+  }
+
+  function run(raw){
+    const cmd = raw.trim().toLowerCase();
+    if(!cmd) return;
+    // echo prompt
+    const pd = document.createElement('div');
+    pd.className='term-line';
+    pd.innerHTML=`<span class="term-prompt-s">vincent@kiokogit:~$ </span><span class="term-cmd-s">${raw}</span>`;
+    output.appendChild(pd);
+
+    if(commands[cmd]){
+      const result = commands[cmd]();
+      if(result && result.length) print(result);
+    } else {
+      print([{t:'err', v:`bash: ${cmd}: command not found. Try 'help'`}]);
+    }
+    output.scrollTop = output.scrollHeight;
+  }
+
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){
+      const v = input.value;
+      if(v.trim()) history.unshift(v);
+      hIdx = -1;
+      run(v);
+      input.value='';
+    } else if(e.key==='ArrowUp'){
+      hIdx = Math.min(hIdx+1, history.length-1);
+      input.value = history[hIdx]||'';
+      e.preventDefault();
+    } else if(e.key==='ArrowDown'){
+      hIdx = Math.max(hIdx-1, -1);
+      input.value = hIdx<0?'':history[hIdx];
+      e.preventDefault();
+    } else if(e.key==='Tab'){
+      e.preventDefault();
+      const partial = input.value.trim().toLowerCase();
+      const match = Object.keys(commands).find(k=>k.startsWith(partial));
+      if(match) input.value = match;
+    }
+  });
+
+  // focus terminal on click
+  document.getElementById('terminal-wrapper') && document.getElementById('terminal-wrapper').addEventListener('click',()=>input.focus());
+  document.querySelector('.terminal-wrapper').addEventListener('click',()=>input.focus());
+
+  // auto-run welcome
+  setTimeout(()=>run('help'),600);
+})();
+</script>
+</body>
+</html>
