@@ -1,0 +1,22 @@
+<svg width="100%" viewBox="0 0 680 380" xmlns="http://www.w3.org/2000/svg">
+
+  <g transform="translate(340,0)" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+
+    <!-- Skyline mark: 3-building continuous roofline, inspired by single-stroke line art -->
+    <path d="M-120,175 L-120,138 L-82,138 L-82,152 L-68,152 L-68,95 L68,95 L68,152 L82,152 L82,138 L120,138 L120,175" fill="none" stroke="var(--color-text-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="fill:none;stroke:rgb(250, 249, 245);color:rgb(255, 255, 255);stroke-width:2.2px;stroke-linecap:round;stroke-linejoin:round;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+    <!-- subtle ground baseline -->
+    <line x1="-148" y1="175" x2="148" y2="175" stroke="var(--color-text-primary)" stroke-width="0.6" stroke-linecap="round" style="fill:rgb(0, 0, 0);stroke:rgb(250, 249, 245);color:rgb(255, 255, 255);stroke-width:0.6px;stroke-linecap:round;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+    <!-- AXIOM -->
+    <text x="0" y="222" text-anchor="middle" style="font-family:var(--font-sans); font-size:44px; font-weight:500; letter-spacing:14px; fill:var(--color-text-primary);;fill:rgb(250, 249, 245);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, sans-serif;font-size:44px;font-weight:500;text-anchor:middle;dominant-baseline:auto">AXIOM</text>
+
+    <!-- thin rule -->
+    <line x1="-130" y1="238" x2="130" y2="238" stroke="var(--color-text-secondary)" stroke-width="0.5" style="fill:rgb(0, 0, 0);stroke:rgb(194, 192, 182);color:rgb(255, 255, 255);stroke-width:0.5px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+    <!-- ENGINEERING LTD -->
+    <text x="0" y="260" text-anchor="middle" style="font-family:var(--font-sans); font-size:12px; font-weight:400; letter-spacing:7px; fill:var(--color-text-secondary);;fill:rgb(194, 192, 182);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:auto">ENGINEERING LTD</text>
+
+  </g>
+
+</svg>
